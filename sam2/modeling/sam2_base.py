@@ -266,18 +266,18 @@ class SAM2Base(torch.nn.Module):
         Forward SAM prompt encoders and mask heads.
 
         Inputs:
-        - backbone_features: image features of [B, C, H, W] shape
-        - point_inputs: a dictionary with "point_coords" and "point_labels", where
+        - backbone_features: image features of [B, C, H, W] shape **注意这个形状，hierarchical的feature其形状都是这样的
+        - point_inputs: a **dictionary** with "point_coords" and "point_labels", where （即坐标以及前后背景label）
           1) "point_coords" has [B, P, 2] shape and float32 dtype and contains the
              absolute pixel-unit coordinate in (x, y) format of the P input points
           2) "point_labels" has shape [B, P] and int32 dtype, where 1 means
              positive clicks, 0 means negative clicks, and -1 means padding
         - mask_inputs: a mask of [B, 1, H*16, W*16] shape, float or bool, with the
-          same spatial size as the image.
+          same spatial size as the image. 因为是float or bool 所以后面要进行float化
         - high_res_features: either 1) None or 2) or a list of length 2 containing
-          two feature maps of [B, C, 4*H, 4*W] and [B, C, 2*H, 2*W] shapes respectively,
+          two feature maps of [B, C, 4*H, 4*W] and [B, C, 2*H, 2*W] shapes respectively, 写的太细节了，就是这两种高reso的feature，一般sam会16（2**4，4个stage会下采样4次？不应该是三次吗，plot看看）倍降采样
           which will be used as high-resolution feature maps for SAM decoder.
-        - multimask_output: if it's True, we output 3 candidate masks and their 3
+        - multimask_output: if it's True, we output 3 candidate masks and their 3 如果没记错，sam1也是输出3个mask，但是web demo实际上只输出了两个
           corresponding IoU estimates, and if it's False, we output only 1 mask and
           its corresponding IoU estimate.
 
