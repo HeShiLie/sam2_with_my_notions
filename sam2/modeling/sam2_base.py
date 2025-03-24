@@ -418,23 +418,23 @@ class SAM2Base(torch.nn.Module):
         (same input and output shapes as in _forward_sam_heads above).
         """
         # Use -10/+10 as logits for neg/pos pixels (very close to 0/1 in prob after sigmoid).
-        out_scale, out_bias = 20.0, -10.0  # sigmoid(-10.0)=4.5398e-05
-        mask_inputs_float = mask_inputs.float()
-        high_res_masks = mask_inputs_float * out_scale + out_bias
+        out_scale, out_bias = 20.0, -10.0  # sigmoid(-10.0)=4.5398e-05 # Gao: 这是两个数，高度怀疑和“19.25”有关
+        mask_inputs_float = mask_inputs.float() # mask inputs 原本不是float的吗？那原本是什么？mask input 为用户提供的最高级的参数
+        high_res_masks = mask_inputs_float * out_scale + out_bias # 属于[-10，10]
         low_res_masks = F.interpolate(
             high_res_masks,
             size=(high_res_masks.size(-2) // 4, high_res_masks.size(-1) // 4),
-            align_corners=False,
+            align_corners=False, # 这个设成false会让插值更加平滑
             mode="bilinear",
             antialias=True,  # use antialias for downsampling
         )
         # a dummy IoU prediction of all 1's under mask input
         ious = mask_inputs.new_ones(mask_inputs.size(0), 1).float()
-        if not self.use_obj_ptrs_in_encoder:
-            # all zeros as a dummy object pointer (of shape [B, C])
+        if not self.use_obj_ptrs_in_encoder: # ptrs应该是pointers的简称
+            # all zeros as a dummy object pointer (of shape [B, C]) #翻译：全零作为样本obj_ptrs
             obj_ptr = torch.zeros(
                 mask_inputs.size(0), self.hidden_dim, device=mask_inputs.device
-            )
+            ) # shape： b d
         else:
             # produce an object pointer using the SAM decoder from the mask input
             _, _, _, _, _, obj_ptr, _ = self._forward_sam_heads(
