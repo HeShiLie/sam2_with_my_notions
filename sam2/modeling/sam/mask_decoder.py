@@ -185,7 +185,9 @@ class MaskDecoder(nn.Module):
                     self.mask_tokens.weight,
                 ],
                 dim=0,
-            )
+            ) # shape: (1+self.num_mask_tokens+1, d) = (5,d), 
+              # where self.num_mask_tokens = num_multimask_outputs + 1
+              # num_multimask_outputs传参为3
             s = 1
         else:
             output_tokens = torch.cat(
@@ -193,7 +195,7 @@ class MaskDecoder(nn.Module):
             )
         output_tokens = output_tokens.unsqueeze(0).expand(
             sparse_prompt_embeddings.size(0), -1, -1
-        )
+        ) # shape: b, 5, d
         tokens = torch.cat((output_tokens, sparse_prompt_embeddings), dim=1)
 
         # Expand per-image data in batch direction to be per-mask
