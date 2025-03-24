@@ -197,9 +197,9 @@ class MaskDecoder(nn.Module):
         tokens = torch.cat((output_tokens, sparse_prompt_embeddings), dim=1)
 
         # Expand per-image data in batch direction to be per-mask
-        if repeat_image:
-            src = torch.repeat_interleave(image_embeddings, tokens.shape[0], dim=0) # gao：shape：（2 or 3 * b， D， H，W
-        else:
+        if repeat_image: # in batched inference, it is usually set false, so here the image_embeddings is of shape: (d, h, w)
+            src = torch.repeat_interleave(image_embeddings, tokens.shape[0], dim=0) # (2or3 *d, h, w)
+        else: # 一般都会走这个分支
             assert image_embeddings.shape[0] == tokens.shape[0]
             src = image_embeddings
         src = src + dense_prompt_embeddings
