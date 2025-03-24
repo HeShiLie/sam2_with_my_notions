@@ -198,7 +198,7 @@ class MaskDecoder(nn.Module):
 
         # Expand per-image data in batch direction to be per-mask
         if repeat_image:
-            src = torch.repeat_interleave(image_embeddings, tokens.shape[0], dim=0) # gao：shape：（2 or 3 * b， D， H，W）？（）
+            src = torch.repeat_interleave(image_embeddings, tokens.shape[0], dim=0) # gao：shape：（2 or 3 * b， D， H，W
         else:
             assert image_embeddings.shape[0] == tokens.shape[0]
             src = image_embeddings
